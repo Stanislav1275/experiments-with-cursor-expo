@@ -8,6 +8,7 @@ import {
   ScrollView,
   useWindowDimensions,
 } from 'react-native';
+import type { FlashList } from '@shopify/flash-list';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Tabs, MaterialTabBar } from 'react-native-collapsible-tab-view';
 import type { TabBarProps } from 'react-native-collapsible-tab-view';
@@ -241,6 +242,11 @@ export default function ProfileScreen() {
   const router = useRouter();
   const containerRef = useRef<Tabs.ContainerRef>(null);
   const insets = useSafeAreaInsets();
+  const listRefs = useRef<{
+    posts: FlashList<unknown> | null;
+    media: FlashList<unknown> | null;
+    likes: { scrollToOffset?: (p: { offset: number; animated?: boolean }) => void } | null;
+  }>({ posts: null, media: null, likes: null });
 
   const initialTab = React.useMemo((): TabName => {
     const t = tab?.toLowerCase();
@@ -260,11 +266,25 @@ export default function ProfileScreen() {
     return () => clearTimeout(timer);
   }, [initialTab]);
 
+  const scrollTabToTop = useCallback((tabName: TabName) => {
+    // Delay so the new tab's list is mounted and ready
+    setTimeout(() => {
+      const ref = listRefs.current[tabName];
+      if (ref && typeof (ref as { scrollToOffset?: unknown }).scrollToOffset === 'function') {
+        (ref as { scrollToOffset: (p: { offset: number; animated?: boolean }) => void }).scrollToOffset({
+          offset: 0,
+          animated: false,
+        });
+      }
+    }, 80);
+  }, []);
+
   const handleTabChange = useCallback(
     (data: { tabName: TabName }) => {
+      scrollTabToTop(data.tabName);
       router.setParams({ tab: data.tabName });
     },
-    [router]
+    [router, scrollTabToTop]
   );
 
   const renderTabBar = useCallback(
@@ -307,6 +327,7 @@ export default function ProfileScreen() {
         <Tabs.Tab name="posts" label="Posts">
           <LazyTabContent tabName="posts">
             <Tabs.FlashList
+              ref={(r) => { listRefs.current.posts = r; }}
               data={POSTS_DATA}
               renderItem={renderPostsItem}
               keyExtractor={(item) => item.id}
@@ -318,6 +339,7 @@ export default function ProfileScreen() {
         <Tabs.Tab name="media" label="Media">
           <LazyTabContent tabName="media">
             <Tabs.FlashList
+              ref={(r) => { listRefs.current.media = r; }}
               data={MEDIA_DATA}
               renderItem={renderMediaItem}
               keyExtractor={(item) => item.id}
@@ -333,6 +355,7 @@ export default function ProfileScreen() {
         <Tabs.Tab name="likes" label="Likes">
           <LazyTabContent tabName="likes">
             <Tabs.SectionList
+              ref={(r) => { listRefs.current.likes = r; }}
               sections={[
                 { title: 'Recent', data: LIKES_DATA.slice(0, 25) },
                 { title: 'Earlier', data: LIKES_DATA.slice(25) },

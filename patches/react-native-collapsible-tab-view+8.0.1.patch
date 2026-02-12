@@ -38,6 +38,41 @@ index 63abc88..20015d2 100644
      ref(value);
    }, [recyclerRef, ref]);
    return (
+diff --git a/node_modules/react-native-collapsible-tab-view/src/Container.tsx b/node_modules/react-native-collapsible-tab-view/src/Container.tsx
+index e782b90..82d831e 100644
+--- a/node_modules/react-native-collapsible-tab-view/src/Container.tsx
++++ b/node_modules/react-native-collapsible-tab-view/src/Container.tsx
+@@ -241,23 +241,22 @@ export const Container = React.memo(
+         },
+         (i) => {
+           if (i !== index.value) {
++            const newTabName = tabNames.value[i]
++            // Always start new tab from top (fixes offset when switching from scrolled tab)
++            scrollY.value[newTabName] = 0
++            scrollYCurrent.value = 0
+             offset.value =
+               scrollY.value[tabNames.value[index.value]] -
+-              scrollY.value[tabNames.value[i]] +
++              scrollY.value[newTabName] +
+               offset.value
+             runOnJS(propagateTabChange)({
+               prevIndex: index.value,
+               index: i,
+               prevTabName: tabNames.value[index.value],
+-              tabName: tabNames.value[i],
++              tabName: newTabName,
+             })
+             index.value = i
+-            if (
+-              typeof scrollY.value[tabNames.value[index.value]] === 'number'
+-            ) {
+-              scrollYCurrent.value =
+-                scrollY.value[tabNames.value[index.value]] || 0
+-            }
++            scrollToImpl(refMap[newTabName], 0, 0 - contentInset, false)
+             runOnJS(toggleSyncScrollFrame)(true)
+           }
+         },
 diff --git a/node_modules/react-native-collapsible-tab-view/src/hooks.tsx b/node_modules/react-native-collapsible-tab-view/src/hooks.tsx
 index ba7dffa..17de93b 100644
 --- a/node_modules/react-native-collapsible-tab-view/src/hooks.tsx
