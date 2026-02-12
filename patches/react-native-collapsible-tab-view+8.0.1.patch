@@ -38,3 +38,44 @@ index 63abc88..20015d2 100644
      ref(value);
    }, [recyclerRef, ref]);
    return (
+diff --git a/node_modules/react-native-collapsible-tab-view/src/hooks.tsx b/node_modules/react-native-collapsible-tab-view/src/hooks.tsx
+index ba7dffa..17de93b 100644
+--- a/node_modules/react-native-collapsible-tab-view/src/hooks.tsx
++++ b/node_modules/react-native-collapsible-tab-view/src/hooks.tsx
+@@ -476,26 +476,7 @@ export const useScrollHandlerY = (name: TabName) => {
+         const areEqual = focusedScrollY === tabScrollY
+ 
+         if (!areEqual) {
+-          const currIsOnTop =
+-            tabScrollY + StyleSheet.hairlineWidth <= headerScrollDistance.value
+-          const focusedIsOnTop =
+-            focusedScrollY + StyleSheet.hairlineWidth <=
+-            headerScrollDistance.value
+-
+-          if (revealHeaderOnScroll) {
+-            const hasGap = accDiffClamp.value > tabScrollY
+-            if (hasGap || currIsOnTop) {
+-              nextPosition = accDiffClamp.value
+-            }
+-          } else if (typeof snapThreshold === 'number') {
+-            if (focusedIsOnTop) {
+-              nextPosition = snappingTo.value
+-            } else if (currIsOnTop) {
+-              nextPosition = headerHeight || 0
+-            }
+-          } else if (currIsOnTop || focusedIsOnTop) {
+-            nextPosition = Math.min(focusedScrollY, headerScrollDistance.value)
+-          }
++          nextPosition = 0
+         }
+ 
+         if (nextPosition !== null) {
+@@ -505,7 +486,7 @@ export const useScrollHandlerY = (name: TabName) => {
+         }
+       }
+     },
+-    [revealHeaderOnScroll, refMap, snapThreshold, enabled, scrollTo]
++    [refMap, scrollTo]
+   )
+ 
+   return { scrollHandler, enable }
