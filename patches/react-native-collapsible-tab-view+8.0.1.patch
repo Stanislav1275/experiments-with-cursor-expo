@@ -1,0 +1,40 @@
+diff --git a/node_modules/react-native-collapsible-tab-view/lib/commonjs/FlashList.js b/node_modules/react-native-collapsible-tab-view/lib/commonjs/FlashList.js
+index 804f3d6..db0e6af 100644
+--- a/node_modules/react-native-collapsible-tab-view/lib/commonjs/FlashList.js
++++ b/node_modules/react-native-collapsible-tab-view/lib/commonjs/FlashList.js
+@@ -90,12 +90,9 @@ function FlashListImpl({
+     ..._contentContainerStyle
+   }), [_contentContainerStyle, contentContainerStyle.paddingTop]);
+   const refWorkaround = (0, _react.useCallback)(value => {
+-    // https://github.com/Shopify/flash-list/blob/2d31530ed447a314ec5429754c7ce88dad8fd087/src/FlashList.tsx#L829
+-    // We are not accessing the right element or view of the Flashlist (recyclerlistview). So we need to give
+-    // this ref the access to it
+-    // eslint-ignore
+-    ;
+-    recyclerRef(value?.recyclerlistview_unsafe);
++    // FlashList v1: recyclerlistview_unsafe, FlashList v2: fallback to ref (sync may be limited)
++    const scrollRef = value?.recyclerlistview_unsafe ?? value;
++    recyclerRef(scrollRef);
+     ref(value);
+   }, [recyclerRef, ref]);
+   return (
+diff --git a/node_modules/react-native-collapsible-tab-view/lib/module/FlashList.js b/node_modules/react-native-collapsible-tab-view/lib/module/FlashList.js
+index 63abc88..20015d2 100644
+--- a/node_modules/react-native-collapsible-tab-view/lib/module/FlashList.js
++++ b/node_modules/react-native-collapsible-tab-view/lib/module/FlashList.js
+@@ -84,12 +84,9 @@ function FlashListImpl({
+     ..._contentContainerStyle
+   }), [_contentContainerStyle, contentContainerStyle.paddingTop]);
+   const refWorkaround = useCallback(value => {
+-    // https://github.com/Shopify/flash-list/blob/2d31530ed447a314ec5429754c7ce88dad8fd087/src/FlashList.tsx#L829
+-    // We are not accessing the right element or view of the Flashlist (recyclerlistview). So we need to give
+-    // this ref the access to it
+-    // eslint-ignore
+-    ;
+-    recyclerRef(value?.recyclerlistview_unsafe);
++    // FlashList v1: recyclerlistview_unsafe, FlashList v2: fallback to ref (sync may be limited)
++    const scrollRef = value?.recyclerlistview_unsafe ?? value;
++    recyclerRef(scrollRef);
+     ref(value);
+   }, [recyclerRef, ref]);
+   return (
