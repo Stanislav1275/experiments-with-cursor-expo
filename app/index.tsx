@@ -11,19 +11,19 @@ export default function Home() {
         </Pressable>
       </Link>
       <View style={styles.links}>
-        <Link href="/profile/posts" asChild>
+        <Link href={{ pathname: '/profile', params: { tab: 'posts' } }} asChild>
           <Pressable style={styles.link}>
-            <Text style={styles.linkText}>/profile/posts</Text>
+            <Text style={styles.linkText}>/profile?tab=posts</Text>
           </Pressable>
         </Link>
-        <Link href="/profile/media" asChild>
+        <Link href={{ pathname: '/profile', params: { tab: 'media' } }} asChild>
           <Pressable style={styles.link}>
-            <Text style={styles.linkText}>/profile/media</Text>
+            <Text style={styles.linkText}>/profile?tab=media</Text>
           </Pressable>
         </Link>
-        <Link href="/profile/likes" asChild>
+        <Link href={{ pathname: '/profile', params: { tab: 'likes' } }} asChild>
           <Pressable style={styles.link}>
-            <Text style={styles.linkText}>/profile/likes</Text>
+            <Text style={styles.linkText}>/profile?tab=likes</Text>
           </Pressable>
         </Link>
       </View>
