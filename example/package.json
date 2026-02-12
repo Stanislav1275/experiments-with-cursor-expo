@@ -1,0 +1,8 @@
+{
+  "name": "@app/download-kit-example",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@app/download-kit": "file:../packages/download-kit"
+  }
+}
