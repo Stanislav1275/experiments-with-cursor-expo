@@ -1,0 +1,116 @@
+diff --git a/node_modules/react-native-collapsible-tab-view/lib/commonjs/FlashList.js b/node_modules/react-native-collapsible-tab-view/lib/commonjs/FlashList.js
+index 804f3d6..db0e6af 100644
+--- a/node_modules/react-native-collapsible-tab-view/lib/commonjs/FlashList.js
++++ b/node_modules/react-native-collapsible-tab-view/lib/commonjs/FlashList.js
+@@ -90,12 +90,9 @@ function FlashListImpl({
+     ..._contentContainerStyle
+   }), [_contentContainerStyle, contentContainerStyle.paddingTop]);
+   const refWorkaround = (0, _react.useCallback)(value => {
+-    // https://github.com/Shopify/flash-list/blob/2d31530ed447a314ec5429754c7ce88dad8fd087/src/FlashList.tsx#L829
+-    // We are not accessing the right element or view of the Flashlist (recyclerlistview). So we need to give
+-    // this ref the access to it
+-    // eslint-ignore
+-    ;
+-    recyclerRef(value?.recyclerlistview_unsafe);
++    // FlashList v1: recyclerlistview_unsafe, FlashList v2: fallback to ref (sync may be limited)
++    const scrollRef = value?.recyclerlistview_unsafe ?? value;
++    recyclerRef(scrollRef);
+     ref(value);
+   }, [recyclerRef, ref]);
+   return (
+diff --git a/node_modules/react-native-collapsible-tab-view/lib/module/FlashList.js b/node_modules/react-native-collapsible-tab-view/lib/module/FlashList.js
+index 63abc88..20015d2 100644
+--- a/node_modules/react-native-collapsible-tab-view/lib/module/FlashList.js
++++ b/node_modules/react-native-collapsible-tab-view/lib/module/FlashList.js
+@@ -84,12 +84,9 @@ function FlashListImpl({
+     ..._contentContainerStyle
+   }), [_contentContainerStyle, contentContainerStyle.paddingTop]);
+   const refWorkaround = useCallback(value => {
+-    // https://github.com/Shopify/flash-list/blob/2d31530ed447a314ec5429754c7ce88dad8fd087/src/FlashList.tsx#L829
+-    // We are not accessing the right element or view of the Flashlist (recyclerlistview). So we need to give
+-    // this ref the access to it
+-    // eslint-ignore
+-    ;
+-    recyclerRef(value?.recyclerlistview_unsafe);
++    // FlashList v1: recyclerlistview_unsafe, FlashList v2: fallback to ref (sync may be limited)
++    const scrollRef = value?.recyclerlistview_unsafe ?? value;
++    recyclerRef(scrollRef);
+     ref(value);
+   }, [recyclerRef, ref]);
+   return (
+diff --git a/node_modules/react-native-collapsible-tab-view/src/Container.tsx b/node_modules/react-native-collapsible-tab-view/src/Container.tsx
+index e782b90..82d831e 100644
+--- a/node_modules/react-native-collapsible-tab-view/src/Container.tsx
++++ b/node_modules/react-native-collapsible-tab-view/src/Container.tsx
+@@ -241,23 +241,22 @@ export const Container = React.memo(
+         },
+         (i) => {
+           if (i !== index.value) {
++            const newTabName = tabNames.value[i]
++            // Always start new tab from top (fixes offset when switching from scrolled tab)
++            scrollY.value[newTabName] = 0
++            scrollYCurrent.value = 0
+             offset.value =
+               scrollY.value[tabNames.value[index.value]] -
+-              scrollY.value[tabNames.value[i]] +
++              scrollY.value[newTabName] +
+               offset.value
+             runOnJS(propagateTabChange)({
+               prevIndex: index.value,
+               index: i,
+               prevTabName: tabNames.value[index.value],
+-              tabName: tabNames.value[i],
++              tabName: newTabName,
+             })
+             index.value = i
+-            if (
+-              typeof scrollY.value[tabNames.value[index.value]] === 'number'
+-            ) {
+-              scrollYCurrent.value =
+-                scrollY.value[tabNames.value[index.value]] || 0
+-            }
++            scrollToImpl(refMap[newTabName], 0, 0 - contentInset, false)
+             runOnJS(toggleSyncScrollFrame)(true)
+           }
+         },
+diff --git a/node_modules/react-native-collapsible-tab-view/src/hooks.tsx b/node_modules/react-native-collapsible-tab-view/src/hooks.tsx
+index ba7dffa..17de93b 100644
+--- a/node_modules/react-native-collapsible-tab-view/src/hooks.tsx
++++ b/node_modules/react-native-collapsible-tab-view/src/hooks.tsx
+@@ -476,26 +476,7 @@ export const useScrollHandlerY = (name: TabName) => {
+         const areEqual = focusedScrollY === tabScrollY
+ 
+         if (!areEqual) {
+-          const currIsOnTop =
+-            tabScrollY + StyleSheet.hairlineWidth <= headerScrollDistance.value
+-          const focusedIsOnTop =
+-            focusedScrollY + StyleSheet.hairlineWidth <=
+-            headerScrollDistance.value
+-
+-          if (revealHeaderOnScroll) {
+-            const hasGap = accDiffClamp.value > tabScrollY
+-            if (hasGap || currIsOnTop) {
+-              nextPosition = accDiffClamp.value
+-            }
+-          } else if (typeof snapThreshold === 'number') {
+-            if (focusedIsOnTop) {
+-              nextPosition = snappingTo.value
+-            } else if (currIsOnTop) {
+-              nextPosition = headerHeight || 0
+-            }
+-          } else if (currIsOnTop || focusedIsOnTop) {
+-            nextPosition = Math.min(focusedScrollY, headerScrollDistance.value)
+-          }
++          nextPosition = 0
+         }
+ 
+         if (nextPosition !== null) {
+@@ -505,7 +486,7 @@ export const useScrollHandlerY = (name: TabName) => {
+         }
+       }
+     },
+-    [revealHeaderOnScroll, refMap, snapThreshold, enabled, scrollTo]
++    [refMap, scrollTo]
+   )
+ 
+   return { scrollHandler, enable }
