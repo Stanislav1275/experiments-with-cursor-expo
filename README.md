@@ -15,6 +15,7 @@ to validate background chapter downloads.
 - Pause/resume/cancel/delete/re-download behavior.
 - Unified progress model to drive in-app UI and a single system notification.
 - Persistent queue state in MMKV.
+- Fork-friendly Kesha background queue transport with global headers.
 
 ## Quick start
 

@@ -8,6 +8,9 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@kesha-antonov/react-native-background-downloader": "^4.5.2",
+    "react-native": "^0.84.0",
+    "react-native-fs": "^2.20.0",
     "react-native-mmkv": "^4.1.2"
   }
 }

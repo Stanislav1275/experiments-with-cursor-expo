@@ -14,14 +14,15 @@ Standalone module for chapter downloads with queue management and MMKV persisten
 
 - `DownloadScheduler` - orchestrates queue and active tasks.
 - `MMKVDownloadStore` - persistence adapter for React Native.
+- `KeshaBackgroundDownloadQueue` - fork-style queue engine (inspired by fivecar) with:
+  - `@kesha-antonov/react-native-background-downloader` transport
+  - MMKV-backed queue persistence
+  - global request headers support
+  - pause/resume/remove/retry behavior
 - `FakeChapterDownloader` - deterministic test downloader for example/demo runs.
 
 ## Notes for real background downloads
 
-To satisfy background behavior after app termination:
-
-- iOS: use native `URLSession` background transfers.
-- Android: use `WorkManager` with foreground notification.
-
-The scheduler in this package is transport-agnostic: swap `FakeChapterDownloader`
-with a native-backed downloader implementation.
+`KeshaBackgroundDownloadQueue` is the production-oriented transport candidate in this repo.
+It addresses the "one-file queue fork" approach by adapting queue state storage to MMKV
+and exposing explicit global headers for image requests.

@@ -29,9 +29,14 @@ and downloader contracts are reusable and testable without coupling to app scree
   - `download(task, { signal, onProgress })`
   - `remove(task)`
 - Demo uses `FakeChapterDownloader` to simulate bytes/pages/errors.
-- Production should provide native-backed downloader implementation:
-  - iOS: URLSession background transfer
-  - Android: WorkManager + foreground service notification
+- `KeshaBackgroundDownloadQueue` is included as a fork-style transport engine based on
+  the fivecar queue approach, but adapted for:
+  - Kesha v4 (`createDownloadTask`, `getExistingDownloadTasks`)
+  - MMKV persistence for queue specs
+  - explicit global headers support for image requests
+- Platform-native behavior is still provided by Kesha internals:
+  - iOS URLSession background transfers
+  - Android DownloadManager / foreground service flow
 
 ## Re-download policy
 

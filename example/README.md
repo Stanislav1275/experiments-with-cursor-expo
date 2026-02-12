@@ -71,4 +71,5 @@ chapter downloads.
 
 - Use `MMKVDownloadStore` in app runtime.
 - Use `FakeChapterDownloader` in example-only builds.
-- Switch to native background downloader implementation for production.
+- Switch to `KeshaBackgroundDownloadQueue` for production transport when wiring
+  real background downloads with global headers.
