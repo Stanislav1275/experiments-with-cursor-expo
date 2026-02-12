@@ -2,6 +2,7 @@
   "expo": {
     "name": "profile-tabs-app",
     "slug": "profile-tabs-app",
+    "scheme": "profile-tabs",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",

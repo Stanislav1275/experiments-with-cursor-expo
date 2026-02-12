@@ -1,27 +1,14 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useRef } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Dimensions,
-  ListRenderItem,
-} from 'react-native';
-import { Tabs } from 'react-native-collapsible-tab-view';
-
-const { width } = Dimensions.get('window');
+import { View, Text, StyleSheet, ListRenderItem } from 'react-native';
+import { Tabs, MaterialTabBar } from 'react-native-collapsible-tab-view';
+import type { TabBarProps } from 'react-native-collapsible-tab-view';
 
 const HEADER_HEIGHT = 280;
 const TAB_BAR_HEIGHT = 52;
 
 const TAB_NAMES = ['posts', 'media', 'likes'] as const;
 type TabName = (typeof TAB_NAMES)[number];
-
-const TAB_LABELS: Record<TabName, string> = {
-  posts: 'Posts',
-  media: 'Media',
-  likes: 'Likes',
-};
 
 // Generate mock data for FlashList
 const generatePosts = () =>
@@ -105,7 +92,7 @@ const LikeItem = ({ item }: { item: (typeof LIKES_DATA)[0] }) => (
 );
 
 export default function ProfileScreen() {
-  const { tab } = useLocalSearchParams<{ tab?: string }>();
+  const { tab } = useLocalSearchParams<{ tab?: string[] }>();
   const router = useRouter();
   const containerRef = useRef<Tabs.ContainerRef>(null);
 
@@ -129,13 +116,9 @@ export default function ProfileScreen() {
   );
 
   const renderTabBar = useCallback(
-    (props: Parameters<typeof Tabs.Container>[0]['renderTabBar'] extends
-      | ((p: infer P) => React.ReactElement)
-      | undefined
-      ? P
-      : never) => (
+    (props: TabBarProps<TabName>) => (
       <View style={styles.tabBar}>
-        <Tabs.MaterialTabBar
+        <MaterialTabBar
           {...props}
           activeColor="#6366f1"
           inactiveColor="#71717a"
