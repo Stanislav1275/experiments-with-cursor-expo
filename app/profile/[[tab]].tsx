@@ -92,20 +92,28 @@ const LikeItem = ({ item }: { item: (typeof LIKES_DATA)[0] }) => (
 );
 
 export default function ProfileScreen() {
-  const { tab } = useLocalSearchParams<{ tab?: string[] }>();
+  const { tab } = useLocalSearchParams<{ tab?: string }>();
   const router = useRouter();
   const containerRef = useRef<Tabs.ContainerRef>(null);
 
   const initialTab = React.useMemo(() => {
-    const t = tab?.[0]?.toLowerCase();
+    const t = tab?.toLowerCase();
     if (t && TAB_NAMES.includes(t as TabName)) return t as TabName;
     return 'posts';
   }, [tab]);
 
   useEffect(() => {
-    if (initialTab && containerRef.current) {
-      containerRef.current.jumpToTab(initialTab);
-    }
+    if (!initialTab) return;
+    const timer = setTimeout(() => {
+      if (containerRef.current) {
+        const currentIndex = containerRef.current.getCurrentIndex();
+        const targetIndex = TAB_NAMES.indexOf(initialTab);
+        if (currentIndex !== targetIndex) {
+          containerRef.current.jumpToTab(initialTab);
+        }
+      }
+    }, 100);
+    return () => clearTimeout(timer);
   }, [initialTab]);
 
   const handleTabChange = useCallback(
@@ -155,6 +163,7 @@ export default function ProfileScreen() {
         onTabChange={({ tabName }) => handleTabChange({ tabName: tabName as TabName })}
         minHeaderHeight={0}
         revealHeaderOnScroll
+        lazy={false}
       >
         {/* FlatList, SectionList, FlashList - все работают с collapsible header */}
         {/* FlashList v2.2: без estimatedItemSize, patch для recyclerlistview_unsafe в node_modules */}
